@@ -1,5 +1,8 @@
 app:
-  base-url: http://localhost:8080  # ICS 피드 URL에 사용 (배포 시 환경 변수로 덮어쓰기)
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
+server:
+  port: ${PORT:8080}
 
 spring:
   application:
