@@ -1,45 +1,161 @@
-# 두구두구 백엔드 API 명세
+# 두구두구 백엔드 API 명세서
 
-프론트엔드 하드코딩 데이터를 기준으로 한 REST API 명세입니다.  
-프론트는 `VITE_API_BASE_URL`로 이 백엔드 base URL을 지정합니다.
+기준: 현재 백엔드 소스(`api`, `cal`, `dto`, `config`) 반영.
 
 ---
 
-## 1. 공통 사항
+## 1. GET /api/departments
 
-- **Content-Type**: 요청/응답 모두 `application/json`
-- **인코딩**: UTF-8
-- **에러 응답**: HTTP 4xx/5xx + JSON body (선택)
+학과 목록(필터용 단순 목록).
 
+**요청**
+- Method: `GET`
+- Path: `/api/departments`
+- Query: 없음
+
+**응답** `200 OK`  
+Content-Type: `application/json`
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| departments | array | 학과 항목 목록 |
+| departments[].id | string | 학과 ID |
+| departments[].name | string | 학과명 |
+
+**예상 답변 예시**
 ```json
 {
-  "error": "ERROR_CODE",
-  "message": "사용자에게 보여줄 메시지"
+  "departments": [
+    { "id": "1", "name": "컴퓨터공학과" },
+    { "id": "2", "name": "소프트웨어학과" },
+    { "id": "3", "name": "전자정보공학과" },
+    { "id": "0", "name": "전체" }
+  ]
 }
 ```
 
 ---
 
-## 2. 필터 설정 (학과·학년·키워드)
+## 2. GET /api/keywords
 
-**용도**: `/events` 페이지의 캘린더 필터 옵션(학과 선택, 학년, 키워드 그룹) 제공.
+키워드 목록(필터용).
 
-### `GET /api/filter-config`
+**요청**
+- Method: `GET`
+- Path: `/api/keywords`
+- Query: 없음
 
-**응답**: `200 OK`
+**응답** `200 OK`  
+Content-Type: `application/json`
 
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `departmentsByCollege` | array | O | 대학별 학과 목록 |
-| `departmentsByCollege[].college` | string | O | 대학명 |
-| `departmentsByCollege[].departments` | string[] | O | 해당 대학 소속 학과명 배열 |
-| `years` | string[] | O | 학년 옵션 목록 |
-| `keywordGroups` | array | O | 키워드 그룹(라벨 + 키워드 배열) |
-| `keywordGroups[].label` | string | O | 그룹 표시명 (예: 학사공지, 두드림) |
-| `keywordGroups[].keywords` | string[] | O | 해당 그룹 키워드 목록 |
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| keywords | array | 키워드 항목 목록 |
+| keywords[].id | string | 키워드 ID |
+| keywords[].name | string | 키워드명 |
 
-### 응답 예시 (프론트 기본값 기준)
+**예상 답변 예시**
+```json
+{
+  "keywords": [
+    { "id": "1", "name": "해커톤" },
+    { "id": "2", "name": "수강신청" },
+    { "id": "3", "name": "학사일정" }
+  ]
+}
+```
 
+---
+
+## 3. GET /api/notices
+
+두드림 공지 목록. 시드 데이터 기준으로 `originalCategory`가 두드림인 이벤트만, `startTime` 기준 정렬.
+
+**요청**
+- Method: `GET`
+- Path: `/api/notices`
+- Query: 없음
+
+**응답** `200 OK`  
+Content-Type: `application/json`
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| notices | array | 공지 항목 목록 |
+| notices[].noticeId | string | 공지 ID (externalId) |
+| notices[].title | string | 제목 |
+| notices[].department | string | 학과/소속 |
+| notices[].applicationDate | string | 신청 시작일 (yyyy-MM-dd, Asia/Seoul) |
+| notices[].operatingDate | string | 운영일/종료일 (yyyy-MM-dd, Asia/Seoul) |
+
+**예상 답변 예시** (시드 데이터 기준)
+```json
+{
+  "notices": [
+    {
+      "noticeId": "dd-2026-001-apply",
+      "title": "[신청] 동계 영화제작워크샵 : 초록제",
+      "department": "영화예술학과",
+      "applicationDate": "2026-02-05",
+      "operatingDate": "2026-02-12"
+    },
+    {
+      "noticeId": "dd-2026-001-run",
+      "title": "[운영] 동계 영화제작워크샵 : 초록제",
+      "department": "영화예술학과",
+      "applicationDate": "2026-02-13",
+      "operatingDate": "2026-02-13"
+    },
+    {
+      "noticeId": "dd-2026-002-apply",
+      "title": "[신청] 인융인의 재능봉사",
+      "department": "인공지능융합대학",
+      "applicationDate": "2026-02-09",
+      "operatingDate": "2026-02-25"
+    },
+    {
+      "noticeId": "dd-2026-003-apply",
+      "title": "[신청] 제9회 학정포럼",
+      "department": "학술정보원",
+      "applicationDate": "2026-02-19",
+      "operatingDate": "2026-03-05"
+    },
+    {
+      "noticeId": "dd-2026-004-run",
+      "title": "[운영] 기초학력증진프로그램(1차) : 파이썬",
+      "department": "교수학습개발센터",
+      "applicationDate": "2026-04-01",
+      "operatingDate": "2026-06-28"
+    }
+  ]
+}
+```
+
+---
+
+## 4. GET /api/filter-config
+
+필터 설정(단과대별 학과, 학년, 키워드 그룹).
+
+**요청**
+- Method: `GET`
+- Path: `/api/filter-config`
+- Query: 없음
+
+**응답** `200 OK`  
+Content-Type: `application/json`
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| departmentsByCollege | array | 단과대별 학과 목록 |
+| departmentsByCollege[].college | string | 단과대명 |
+| departmentsByCollege[].departments | string[] | 학과명 목록 |
+| years | string[] | 학년 옵션 (예: "1st Year" 등) |
+| keywordGroups | array | 키워드 그룹 목록 |
+| keywordGroups[].label | string | 그룹 라벨 |
+| keywordGroups[].keywords | string[] | 키워드 문자열 목록 |
+
+**예상 답변 예시** (일부 생략)
 ```json
 {
   "departmentsByCollege": [
@@ -64,78 +180,6 @@
     {
       "college": "경영경제대학",
       "departments": ["경영학부", "경제학과"]
-    },
-    {
-      "college": "호텔관광대학",
-      "departments": [
-        "호텔관광외식경영학부 호텔관광경영학전공",
-        "호텔관광외식경영학부 외식경영학전공",
-        "호텔외식관광프랜차이즈경영학과",
-        "조리서비스경영학과"
-      ]
-    },
-    {
-      "college": "자연과학대학",
-      "departments": ["수학통계학과", "물리천문학과", "화학과"]
-    },
-    {
-      "college": "생명과학대학",
-      "departments": [
-        "생명시스템학부 식품생명공학전공",
-        "생명시스템학부 바이오융합공학전공",
-        "생명시스템학부 바이오산업자원공학전공",
-        "스마트생명산업융합학과"
-      ]
-    },
-    {
-      "college": "인공지능융합대학",
-      "departments": [
-        "AI융합전자공학과",
-        "반도체시스템공학과",
-        "컴퓨터공학과",
-        "정보보호학과",
-        "양자지능정보학과",
-        "창의소프트학부 디자인이노베이션전공",
-        "창의소프트학부 만화애니메이션텍전공",
-        "사이버국방학과",
-        "국방AI로봇융합공학과",
-        "인공지능데이터사이언스학과",
-        "AI로봇학과",
-        "지능정보융합학과",
-        "콘텐츠소프트웨어학과"
-      ]
-    },
-    {
-      "college": "공과대학",
-      "departments": [
-        "건축공학과",
-        "건축학과",
-        "건설환경공학과",
-        "환경융합공학과",
-        "에너지자원공학과",
-        "기계공학과",
-        "우주항공시스템공학부 우주항공공학전공",
-        "우주항공시스템공학부 항공시스템공학전공",
-        "우주항공시스템공학부 지능형드론융합전공",
-        "나노신소재공학과",
-        "양자원자력공학과",
-        "국방AI융합시스템공학과"
-      ]
-    },
-    {
-      "college": "예체능대학",
-      "departments": [
-        "회화과",
-        "패션디자인학과",
-        "음악과",
-        "체육학과",
-        "무용과",
-        "영화예술학과"
-      ]
-    },
-    {
-      "college": "대양휴머니티칼리지",
-      "departments": ["자유전공학부"]
     }
   ],
   "years": ["1st Year", "2nd Year", "3rd Year", "4th Year"],
@@ -154,134 +198,105 @@
 
 ---
 
-## 3. 이벤트 브라우저 카테고리
+## 5. POST /api/ics
 
-**용도**: `/events` 페이지 상단 필터 pill(All, Academic Calendar 등) 목록.
+선택한 공지로 ICS 구독을 생성하고, 캘린더 URL을 반환한다.
 
-### `GET /api/event-categories`
-
-**응답**: `200 OK`
+**요청**
+- Method: `POST`
+- Path: `/api/ics`
+- Content-Type: `application/json`
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| `categories` | string[] | O | 표시할 카테고리 라벨 목록. 첫 번째는 보통 `"All"`. |
+| selectedNoticed | string[] | N | 선택한 공지 ID 목록 (`noticeId` 값). null/빈 배열 가능 |
+| alarmEnabled | boolean | N | 알람 사용 여부. 기본 false |
+| alarmMinutesBefore | integer | N | 알람 분 단위(0~10080). 범위 밖이면 무시 |
 
-### 응답 예시
+**응답** `201 Created`  
+Content-Type: `application/json`
 
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| token | string | 구독 토큰 (6자 영숫자) |
+| icsUrl | string | ICS 피드 URL (브라우저에서 구독용) |
+| downloadUrl | string | 다운로드용 URL (`?download=true`) |
+
+**요청 예시**
 ```json
 {
-  "categories": [
-    "All",
-    "Academic Calendar",
-    "Student Council Events",
-    "Club Recruitment",
-    "Department Seminars",
-    "External Competitions"
-  ]
+  "selectedNoticed": ["dd-2026-001-apply", "dd-2026-001-run", "dd-2026-003-apply"],
+  "alarmEnabled": true,
+  "alarmMinutesBefore": 60
 }
 ```
 
+**예상 답변 예시**
+```json
+{
+  "token": "Ab3xYz",
+  "icsUrl": "https://example.railway.app/cal/Ab3xYz.ics",
+  "downloadUrl": "https://example.railway.app/cal/Ab3xYz.ics?download=true"
+}
+```
+(실제 `token`은 매 요청마다 새로 생성되며, `icsUrl`/`downloadUrl`의 호스트는 `app.base-url` 설정에 따름.)
+
 ---
 
-## 4. 이벤트(공지) 목록
+## 6. GET /cal/{token}.ics
 
-**용도**: 캘린더 필터/이벤트 브라우저에 표시할 공지·이벤트 목록.  
-프론트에는 **학사 일정**과 **두드림** 두 종류 소스가 있으며, 백엔드에서 통합해 내려줄 수 있습니다.
+해당 토큰의 ICS 피드를 반환한다.
 
-### `GET /api/events`
+**요청**
+- Method: `GET`
+- Path: `/cal/{token}.ics`
+- Query:
+  - `download` (optional): `true` 시 `Content-Disposition: attachment; filename="schedule.ics"` 로 내려줌. 기본 `false`
 
-**Query (선택)**
+**응답** `200 OK`  
+- Content-Type: `text/calendar; charset=UTF-8`  
+- Body: iCalendar 형식 문자열 (UTF-8)
 
-| 파라미터 | 타입 | 설명 |
-|----------|------|------|
-| `department` | string | 학과 필터 (예: `컴퓨터공학과`, `전체`) |
-| `years` | string | 복수 시 콤마 구분 (예: `1st Year,2nd Year`) |
-| `keywords` | string | 복수 시 콤마 구분 (예: `수강신청,학사일정`) |
-| `from` | string | ISO 8601 날짜 (이후 이벤트만) |
-| `to` | string | ISO 8601 날짜 (이전 이벤트만) |
+**예상 답변**  
+- 본문은 iCalendar 형식. `selectedNoticed`에 해당하는 이벤트가 포함되며, `alarmEnabled`가 true면 VALARM 블록 포함.
+- 토큰이 없으면 `404` (Subscription not found).
 
-**응답**: `200 OK` — 이벤트 객체 배열
-
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `id` | string | O | 고유 식별자 |
-| `title` | string | O | 제목 (표시용) |
-| `category` | string | O | 프론트 표시용 카테고리: `Academic`, `Career`, `Social`, `Competition`, `Workshop` 중 하나 |
-| `originalCategory` | string | X | 원본 한글 카테고리 (예: `성적/시험`, `예체능/워크샵`) |
-| `date` | string | O | 날짜만 `YYYY-MM-DD` |
-| `start` | string | X | 시작 시각 ISO 8601 (예: `2026-02-10T00:00:00Z`). 없으면 프론트에서 `daysLeft` 0 처리 |
-| `end` | string | X | 종료 시각 ISO 8601 |
-| `location` | string | O | 장소 |
-| `department` | string | O | 대상 학과/부서. `"전체"`면 프론트에서 `All Departments`로 표시 가능 |
-| `attendees` | number | X | 참가/정원 수. 70 이상이면 프론트에서 인기 배지 표시 (기본값 0) |
-| `description` | string | O | 본문/설명 |
-| `image` | string | X | 이미지 URL |
-
-### 카테고리 매핑 (참고)
-
-프론트 한글 카테고리 → `category` 값:
-
-| originalCategory (한글) | category (영문) |
-|-------------------------|-----------------|
-| 성적/시험, 등록/휴복학, 수강신청, 학사일정, 학술/포럼 | Academic |
-| 공휴일, 봉사/인공지능 | Social |
-| 예체능/워크샵, 학습/IT | Workshop |
-| (기타) | Academic |
-
-### 응답 예시 (학사 일정 + 두드림 혼합)
-
-```json
-[
-  {
-    "id": "2026-02-01",
-    "title": "1학기 수강신청 (4학년)",
-    "category": "Academic",
-    "originalCategory": "수강신청",
-    "date": "2026-02-10",
-    "start": "2026-02-10T00:00:00Z",
-    "end": "2026-02-10T23:59:59Z",
-    "location": "Sejong University",
-    "department": "전체",
-    "attendees": 67,
-    "description": "1학기 수강신청 (4학년)"
-  },
-  {
-    "id": "dd-2026-001-apply",
-    "title": "[신청] 동계 영화제작워크샵 : 초록제",
-    "category": "Workshop",
-    "originalCategory": "예체능/워크샵",
-    "date": "2026-02-05",
-    "start": "2026-02-05T00:00:00Z",
-    "end": "2026-02-12T23:59:59Z",
-    "location": "영화예술학과",
-    "department": "영화예술학과",
-    "attendees": 100,
-    "description": "대상: 영화예술학과 / 신청 인원: 무제한"
-  }
-]
+**예시 (일부)**
+```
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Doogoo//ICS//EN
+...
+BEGIN:VEVENT
+UID:dd-2026-001-apply@doogoo
+DTSTAMP:...
+DTSTART:...
+DTEND:...
+SUMMARY:[신청] 동계 영화제작워크샵 : 초록제
+...
+BEGIN:VALARM
+TRIGGER:-PT60M
+ACTION:DISPLAY
+...
+END:VALARM
+END:VEVENT
+...
+END:VCALENDAR
 ```
 
 ---
 
-## 5. 엔드포인트 요약
+## 에러 응답
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/api/filter-config` | 필터 설정(학과·학년·키워드 그룹) |
-| GET | `/api/event-categories` | 이벤트 브라우저 카테고리 목록 |
-| GET | `/api/events` | 이벤트(공지) 목록 (쿼리 필터 선택) |
-
----
-
-## 6. (참고) 기존 ICS 피드
-
-테스트 코드 상에는 아래 API가 가정되어 있습니다. 본 명세와 별도로 유지 가능합니다.
-
-- **GET** `/ics/feed?token={token}&download={boolean}`
-  - `token`: 유효한 토큰
-  - `download=true` 시 `Content-Disposition: attachment; filename="schedule.ics"` 기대
-  - 잘못된 token 형식 → 400, 존재하지 않는 token → 404
+| 상황 | HTTP | 설명 |
+|------|------|------|
+| 구독 없음 (GET /cal/{token}.ics) | 404 | 해당 token 구독이 없을 때 |
+| 잘못된 요청 (POST /api/ics 등) | 400 | BadRequestException 등 |
 
 ---
 
-*문서 버전: 1.0 (프론트 하드코딩 데이터 기준)*
+## 참고
+
+- **Base URL**: 배포 환경에서는 `app.base-url`(또는 `APP_BASE_URL`)에 따라 달라짐. 로컬 기본값 `http://localhost:8080`.
+- **공지 ID**: `/api/notices` 의 `noticeId` 값을 그대로 `POST /api/ics` 의 `selectedNoticed` 배열에 사용.
+- **날짜**: `/api/notices` 의 날짜는 Asia/Seoul 기준 `yyyy-MM-dd` 문자열.
