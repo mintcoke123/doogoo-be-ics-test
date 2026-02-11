@@ -12,10 +12,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-/**
- * 공지/이벤트 엔티티 (학사 일정, 두드림 등).
- * API 명세: GET /api/events 응답 필드와 매핑.
- */
 @Entity
 @Table(name = "notice_event")
 public class Event {
@@ -24,7 +20,6 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** API 응답용 외부 식별자 (예: 2026-02-01, dd-2026-001-apply) */
     @Column(nullable = false, unique = true, length = 64)
     private String externalId;
 
@@ -35,7 +30,6 @@ public class Event {
     @Column(nullable = false, length = 32)
     private EventCategoryType category;
 
-    /** 원본 한글 카테고리 (예: 성적/시험, 예체능/워크샵) */
     @Column(length = 64)
     private String originalCategory;
 
@@ -47,7 +41,6 @@ public class Event {
     @Column(nullable = false)
     private String location;
 
-    /** 대상 학과/부서. "전체" 가능 */
     @Column(nullable = false)
     private String department;
 
@@ -60,7 +53,7 @@ public class Event {
     @Column(length = 512)
     private String imageUrl;
 
-    protected Event() {
+    public Event() {
     }
 
     public Long getId() {
@@ -155,7 +148,6 @@ public class Event {
         this.imageUrl = imageUrl;
     }
 
-    /** YYYY-MM-DD 형식 날짜 (API date 필드) */
     public String getDate() {
         return startTime.atZone(ZoneId.of("Asia/Seoul"))
                 .format(DateTimeFormatter.ISO_LOCAL_DATE);
